@@ -142,15 +142,15 @@ add_action('plugins_loaded', 'init_invoice_gateway', 0);
 	
 			$order = new WC_Order( $order_id );
 	
+			$currentUserID = get_current_user_id();
+    		$purchaseLimit = (get_user_meta( $currentUserID, "user_purchase_limit", true )) ? get_user_meta( $currentUserID, "user_purchase_limit", true ) : "0";
+    		update_field('user_purchase_limit', intval($purchaseLimit) - 1 , 'user_'.$currentUserID);
+    		
 			// Mark as on-hold (we're awaiting the invoice)
 			$order->update_status('completed', __('Awaiting payment', 'dp_wc_invoice'));
 			
 			// Reduce stock levels
-
-			$currentUserID = get_current_user_id();
-    		$purchaseLimit = (get_user_meta( $currentUserID, "user_purchase_limit", true )) ? get_user_meta( $currentUserID, "user_purchase_limit", true ) : "0";
-
-    		update_field('user_purchase_limit', intval($purchaseLimit) - 1 , 'user_'.$currentUserID);
+    		
 
 			$order->reduce_order_stock();
 	
