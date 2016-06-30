@@ -1,0 +1,82 @@
+.wcrc-field .regular-text {
+	width: 25em !important;
+}
+
+.select2-results .select2-result-unselectable {
+	color: #aaa;
+}
+
+.wcrc-select2 {
+	width: 200px;
+}
+
+.wcrc-user-table {
+	margin-top: 1em;
+}
+
+.wcrc-user-table th {
+	font-weight: normal;
+	padding: 8px 10px;
+	width: auto;
+}
+
+.wcrc-user-table tbody th,
+.wcrc-user-table tbody td {
+	cursor: default !important;
+	font-size: 13px;
+}
+
+.wcrc-user-table .wcrc-name-column span {
+	position: relative;
+	padding-left: 35px;
+}
+
+.wcrc-user-table .wcrc-name-column .avatar {
+	position: absolute;
+	top: -3px;
+	left: 0;
+	border-radius: 100%;
+}
+
+.wcrc-user-table tbody tr.wcrc-no-items {
+	background-color: #fff;
+}
+
+.wcrc-user-table tbody tr.wcrc-no-items td {
+	padding: 15px 10px;
+	font-size: 13px;
+}
+
+.wcrc-user-table tbody th.check-column {
+	padding: 16px 0 0 3px;
+}
+
+@media screen and ( max-width: 1200px ) {
+
+	.wp-admin .wcrc-user-table .wcrc-email-manage-column,
+	.wp-admin .wcrc-user-table .wcrc-email-column {
+		display: none;
+	}
+
+}
+
+@media screen and ( max-width: 782px ) {
+
+	.wp-admin .wcrc-user-table td {
+		padding: 10px 10px 0 0;
+	}
+
+	.wp-admin .wcrc-user-table th {
+		display: none;
+	}
+
+	.wp-admin .wcrc-user-table .check-column {
+		display: table-cell;
+		padding: 13px 10px 0 3px;
+	}
+
+	.wp-admin .wcrc-user-table tfoot {
+		display: none;
+	}
+
+}
