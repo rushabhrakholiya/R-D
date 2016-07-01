@@ -14,10 +14,15 @@
 function so1809762_set_gateways_by_context($available_gateways) {
     global $woocommerce;
 
-    //$endpoint = $woocommerce->query->get_current_endpoint();
+    foreach ($woocommerce->cart->cart_contents as $key => $values ) {
+        if(isPackageProducts_bypass($values['product_id']))
+        {
+            unset($available_gateways['invoice']);
+            return $available_gateways;
+        }        
+    }
 
-    if(is_user_logged_in())
-    {    	
+    if(is_user_logged_in()){    	
     	$currentUserID = get_current_user_id();
     	$purchaseLimit = get_user_meta( $currentUserID, "user_purchase_limit", true );    	
     	if(intval($purchaseLimit) != 0)
@@ -30,21 +35,12 @@ function so1809762_set_gateways_by_context($available_gateways) {
     	{
     		unset($available_gateways['invoice']);
     	}
-    }
-    else
-   	{
+    }else{
    		unset($available_gateways['invoice']);	
    	}
-    /*if ($endpoint == 'order-pay') {
-        unset($available_gateways['cod']);
-    } else {
-        unset($available_gateways['stripe']);
-    }*/
-
     return $available_gateways;
 }
 add_filter( 'woocommerce_available_payment_gateways', 'so1809762_set_gateways_by_context');
-
 /* start code on order complete hook */
 add_action('woocommerce_order_status_completed', 'custom_process_order', 10, 1);
 
@@ -62,8 +58,7 @@ function isPackageProducts_bypass($productid)
 
 function custom_process_order($order_id) {
 
-    if(is_user_logged_in())
-    {
+    if(is_user_logged_in()){
         $currentUserID = get_current_user_id();
         $order = new WC_Order( $order_id );
         $items = $order->get_items();
@@ -71,7 +66,7 @@ function custom_process_order($order_id) {
             $product_id = $item['product_id'];
             if(isPackageProducts_bypass($product_id)):
                 $downloadlimit = get_field('download_limit',$product_id);   
-                $productterm = get_field('product_category',$product_id);                     
+                $productterm = get_field('product_category',$product_id);
                 update_field('user_purchase_limit', $downloadlimit , 'user_'.$currentUserID);
                 update_field('product_term_id', $productterm , 'user_'.$currentUserID);
             endif;
