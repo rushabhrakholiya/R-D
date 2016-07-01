@@ -238,8 +238,8 @@ function wc_customer_bought_product( $customer_email, $user_id, $product_id ) {
 		$result = array_map( 'absint', $result );
 
 		set_transient( $transient_name, $result, DAY_IN_SECONDS * 30 );
-	}	
-	//return in_array( absint( $product_id ), $result );
+	}
+	return in_array( absint( $product_id ), $result );
 }
 
 /**
