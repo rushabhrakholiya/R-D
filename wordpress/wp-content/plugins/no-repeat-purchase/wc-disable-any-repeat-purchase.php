@@ -13,6 +13,17 @@
  * @param \WC_Product $product the WooCommerce product
  * @return bool $purchasable the updated is_purchasable check
  */
+function isPackageProducts($product)
+{
+	$termName = wp_get_post_terms($product->id, 'product_cat', array("fields" => "all"));	
+	$termID = $termName[0]->term_taxonomy_id;
+	if($termID == get_field('package_category_global','option')){
+		return true;
+	}else{
+		return false;
+	}
+
+}
 function sv_disable_repeat_purchase( $purchasable, $product ) {
 
 	// Don't run on parents of variations,
@@ -25,9 +36,11 @@ function sv_disable_repeat_purchase( $purchasable, $product ) {
 	$product_id = $product->is_type( 'variation' ) ? $product->variation_id : $product->id; 
     
     // return false if the customer has bought the product / variation
-    if ( wc_customer_bought_product( get_current_user()->user_email, get_current_user_id(), $product_id ) ) {
-        $purchasable = false;
-    }
+    if(isPackageProducts($product)){
+	    if ( wc_customer_bought_product( get_current_user()->user_email, get_current_user_id(), $product_id ) ) {
+	        $purchasable = false;
+	    }
+	}
     
     // Double-check for variations: if parent is not purchasable, then variation is not
     if ( $purchasable && $product->is_type( 'variation' ) ) {
@@ -45,20 +58,23 @@ add_filter( 'woocommerce_is_purchasable', 'sv_disable_repeat_purchase', 10, 2 );
 function sv_purchase_disabled_message() {
 	
 	// Get the current product to see if it has been purchased
-	global $product;
-	
+	global $product;			
 	if ( $product->is_type( 'variable' ) ) {
 		
 		foreach ( $product->get_children() as $variation_id ) {
 			// Render the purchase restricted message if it has been purchased
-			if ( wc_customer_bought_product( get_current_user()->user_email, get_current_user_id(), $variation_id ) ) {
-				sv_render_variation_non_purchasable_message( $product, $variation_id );
+			if(isPackageProducts($product)){
+				if ( wc_customer_bought_product( get_current_user()->user_email, get_current_user_id(), $variation_id ) ) {
+					sv_render_variation_non_purchasable_message( $product, $variation_id );
+				}
 			}
 		}
 		
-	} else {
-		if ( wc_customer_bought_product( get_current_user()->user_email, get_current_user_id(), $product->id ) ) {
-			echo '<div class="woocommerce"><div class="woocommerce-info wc-nonpurchasable-message">You\'ve already purchased this product! It can only be purchased once.</div></div>';
+	} else {		
+		if(isPackageProducts($product)){			
+			if ( wc_customer_bought_product( get_current_user()->user_email, get_current_user_id(), $product->id ) ) {
+				echo '<div class="woocommerce"><div class="woocommerce-info wc-nonpurchasable-message">You\'ve already purchased this product! It can only be purchased once.</div></div>';
+			}
 		}
 	}
 }

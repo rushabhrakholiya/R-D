@@ -40,11 +40,9 @@ add_action('plugins_loaded', 'init_invoice_gateway', 0);
 			// Load the settings.
 			$this->init_settings();
 	
-			// Define user set variables
-			$currentUserID = get_current_user_id();
-    		$purchaseLimit = (get_user_meta( $currentUserID, "user_purchase_limit", true )) ? get_user_meta( $currentUserID, "user_purchase_limit", true ) : "N/A";
+			// Define user set variables			    		
 			$this->title = $this->settings['title'];
-			$this->description = str_replace("%LIMIT%",$purchaseLimit,$this->settings['description']);
+			$this->description = str_replace("%LIMIT%",(get_user_meta( get_current_user_id(), "user_purchase_limit", true )) ? get_user_meta( get_current_user_id(), "user_purchase_limit", true ) : "0",$this->settings['description']);
 	
 			// Actions
 			add_action('woocommerce_update_options_payment_gateways', array(&$this, 'process_admin_options'));
@@ -140,12 +138,17 @@ add_action('plugins_loaded', 'init_invoice_gateway', 0);
 		function process_payment( $order_id ) {
 			global $woocommerce;
 	
-			$order = new WC_Order( $order_id );
-	
+			$order = new WC_Order( $order_id );			    					
 			$currentUserID = get_current_user_id();
     		$purchaseLimit = (get_user_meta( $currentUserID, "user_purchase_limit", true )) ? get_user_meta( $currentUserID, "user_purchase_limit", true ) : "0";
-    		update_field('user_purchase_limit', intval($purchaseLimit) - 1 , 'user_'.$currentUserID);
-    		
+    		$Totalitems = $woocommerce->cart->get_cart_contents_count();
+
+    		if(intval($purchaseLimit) < intval($Totalitems))
+    		{
+    			wc_add_notice( sprintf( __( "Your Download Limit should not exceeded then cart items", "dp_wc_invoice" ) ) ,'error' );
+    			return false;
+    		}   			    			
+    		update_field('field_5774ed55a6b65', intval($purchaseLimit) - intval($Totalitems) , 'user_'.$currentUserID);    	    			    			
 			// Mark as on-hold (we're awaiting the invoice)
 			$order->update_status('completed', __('Awaiting payment', 'dp_wc_invoice'));
 			
